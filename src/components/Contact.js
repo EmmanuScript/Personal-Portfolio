@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Container, Row, Col } from "react-bootstrap";
+import emailjs from "@emailjs/browser";
 import contactImg from "../assets/img/3323619.png";
 import "animate.css";
 import TrackVisibility from "react-on-screen";
@@ -12,9 +13,16 @@ export const Contact = () => {
     phone: "",
     message: "",
   };
+
   const [formDetails, setFormDetails] = useState(formInitialDetails);
   const [buttonText, setButtonText] = useState("Send");
   const [status, setStatus] = useState({});
+  const form = useRef(); // Use a ref to get the form element
+
+  // Initialize EmailJS with your public key
+  emailjs.init(process.env.REACT_APP_PUBLIC_KEY); // Replace with your public key
+
+  console.log(process.env.REACT_APP_PUBLIC_KEY);
 
   const onFormUpdate = (category, value) => {
     setFormDetails({
@@ -23,27 +31,30 @@ export const Contact = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setButtonText("Sending...");
-    let response = await fetch("http://localhost:5000/contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json;charset=utf-8",
-      },
-      body: JSON.stringify(formDetails),
-    });
-    setButtonText("Send");
-    let result = await response.json();
-    setFormDetails(formInitialDetails);
-    if (result.code == 200) {
-      setStatus({ succes: true, message: "Message sent successfully" });
-    } else {
-      setStatus({
-        succes: false,
-        message: "Something went wrong, please try again later.",
-      });
-    }
+
+    emailjs
+      .sendForm(
+        process.env.REACT_APP_SERVICE_ID, // Replace with your EmailJS service ID
+        process.env.REACT_APP_TEMPLATE_ID, // Replace with your EmailJS template ID
+        form.current
+      )
+      .then(
+        (response) => {
+          setButtonText("Send");
+          setFormDetails(formInitialDetails);
+          setStatus({ success: true, message: "Message sent successfully!" });
+        },
+        (error) => {
+          setButtonText("Send");
+          setStatus({
+            success: false,
+            message: "Failed to send message. Please try again.",
+          });
+        }
+      );
   };
 
   return (
@@ -72,11 +83,12 @@ export const Contact = () => {
                   }
                 >
                   <h2>Get In Touch</h2>
-                  <form onSubmit={handleSubmit}>
+                  <form ref={form} onSubmit={handleSubmit}>
                     <Row>
                       <Col size={12} sm={6} className="px-1">
                         <input
                           type="text"
+                          name="firstName" // Update input names to match the EmailJS template
                           value={formDetails.firstName}
                           placeholder="First Name"
                           onChange={(e) =>
@@ -87,7 +99,8 @@ export const Contact = () => {
                       <Col size={12} sm={6} className="px-1">
                         <input
                           type="text"
-                          value={formDetails.lasttName}
+                          name="lastName" // Update input names
+                          value={formDetails.lastName}
                           placeholder="Last Name"
                           onChange={(e) =>
                             onFormUpdate("lastName", e.target.value)
@@ -97,6 +110,7 @@ export const Contact = () => {
                       <Col size={12} sm={6} className="px-1">
                         <input
                           type="email"
+                          name="email" // Update input names
                           value={formDetails.email}
                           placeholder="Email Address"
                           onChange={(e) =>
@@ -107,6 +121,7 @@ export const Contact = () => {
                       <Col size={12} sm={6} className="px-1">
                         <input
                           type="tel"
+                          name="phone" // Update input names
                           value={formDetails.phone}
                           placeholder="Phone No."
                           onChange={(e) =>
@@ -114,9 +129,11 @@ export const Contact = () => {
                           }
                         />
                       </Col>
+
                       <Col size={12} className="px-1">
                         <textarea
                           rows="6"
+                          name="message" // Update input names
                           value={formDetails.message}
                           placeholder="Message"
                           onChange={(e) =>
