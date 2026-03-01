@@ -4,6 +4,8 @@ import meter3 from "../assets/img/node.svg";
 import meter4 from "../assets/img/reactjs.svg";
 import meter5 from "../assets/img/python.svg";
 import meter6 from "../assets/img/flask.svg";
+import meter7 from "../assets/img/java.svg";
+import meter8 from "../assets/img/springboot.svg";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import arrow1 from "../assets/img/arrow1.svg";
@@ -70,6 +72,14 @@ export const Skills = () => {
                 <div className="item">
                   <img src={meter6} alt="Image" />
                   <h5>Flask</h5>
+                </div>
+                <div className="item">
+                  <img src={meter7} alt="Image" />
+                  <h5>Java</h5>
+                </div>
+                <div className="item">
+                  <img src={meter8} alt="Image" />
+                  <h5>Spring Boot</h5>
                 </div>
               </Carousel>
             </div>
