@@ -87,7 +87,11 @@ export const NavBar = () => {
                 >
                   <img src={navIcon2} alt="" />
                 </a>
-                <a href="https://github.com/EmmanuScript" target="_blank" rel="noreferrer">
+                <a
+                  href="https://github.com/EmmanuScript"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <img src={navIcon3} alt="" />
                 </a>
               </div>
