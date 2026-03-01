@@ -1,60 +1,26 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import emailjs from "@emailjs/browser";
+import { useForm, ValidationError } from "@formspree/react";
 import contactImg from "../assets/img/3323619.png";
 import "animate.css";
 import TrackVisibility from "react-on-screen";
 
 export const Contact = () => {
-  const formInitialDetails = {
+  const [formDetails, setFormDetails] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     message: "",
-  };
+  });
 
-  const [formDetails, setFormDetails] = useState(formInitialDetails);
-  const [buttonText, setButtonText] = useState("Send");
-  const [status, setStatus] = useState({});
-  const form = useRef(); // Use a ref to get the form element
-
-  // Initialize EmailJS with your public key
-  emailjs.init(process.env.REACT_APP_PUBLIC_KEY); // Replace with your public key
-
-  console.log(process.env.REACT_APP_PUBLIC_KEY);
+  const [state, handleSubmit] = useForm("xqapgpel"); // 👈 Make sure your .env has this
 
   const onFormUpdate = (category, value) => {
     setFormDetails({
       ...formDetails,
       [category]: value,
     });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setButtonText("Sending...");
-
-    emailjs
-      .sendForm(
-        process.env.REACT_APP_SERVICE_ID, // Replace with your EmailJS service ID
-        process.env.REACT_APP_TEMPLATE_ID, // Replace with your EmailJS template ID
-        form.current
-      )
-      .then(
-        (response) => {
-          setButtonText("Send");
-          setFormDetails(formInitialDetails);
-          setStatus({ success: true, message: "Message sent successfully!" });
-        },
-        (error) => {
-          setButtonText("Send");
-          setStatus({
-            success: false,
-            message: "Failed to send message. Please try again.",
-          });
-        }
-      );
   };
 
   return (
@@ -83,80 +49,89 @@ export const Contact = () => {
                   }
                 >
                   <h2>Get In Touch</h2>
-                  <form ref={form} onSubmit={handleSubmit}>
-                    <Row>
-                      <Col size={12} sm={6} className="px-1">
-                        <input
-                          type="text"
-                          name="firstName" // Update input names to match the EmailJS template
-                          value={formDetails.firstName}
-                          placeholder="First Name"
-                          onChange={(e) =>
-                            onFormUpdate("firstName", e.target.value)
-                          }
-                        />
-                      </Col>
-                      <Col size={12} sm={6} className="px-1">
-                        <input
-                          type="text"
-                          name="lastName" // Update input names
-                          value={formDetails.lastName}
-                          placeholder="Last Name"
-                          onChange={(e) =>
-                            onFormUpdate("lastName", e.target.value)
-                          }
-                        />
-                      </Col>
-                      <Col size={12} sm={6} className="px-1">
-                        <input
-                          type="email"
-                          name="email" // Update input names
-                          value={formDetails.email}
-                          placeholder="Email Address"
-                          onChange={(e) =>
-                            onFormUpdate("email", e.target.value)
-                          }
-                        />
-                      </Col>
-                      <Col size={12} sm={6} className="px-1">
-                        <input
-                          type="tel"
-                          name="phone" // Update input names
-                          value={formDetails.phone}
-                          placeholder="Phone No."
-                          onChange={(e) =>
-                            onFormUpdate("phone", e.target.value)
-                          }
-                        />
-                      </Col>
 
-                      <Col size={12} className="px-1">
-                        <textarea
-                          rows="6"
-                          name="message" // Update input names
-                          value={formDetails.message}
-                          placeholder="Message"
-                          onChange={(e) =>
-                            onFormUpdate("message", e.target.value)
-                          }
-                        ></textarea>
-                        <button type="submit">
-                          <span>{buttonText}</span>
-                        </button>
-                      </Col>
-                      {status.message && (
-                        <Col>
-                          <p
-                            className={
-                              status.success === false ? "danger" : "success"
+                  {state.succeeded ? (
+                    <p className="success">Message sent successfully!</p>
+                  ) : (
+                    <form onSubmit={handleSubmit}>
+                      <Row>
+                        <Col size={12} sm={6} className="px-1">
+                          <input
+                            type="text"
+                            name="firstName"
+                            value={formDetails.firstName}
+                            placeholder="First Name"
+                            onChange={(e) =>
+                              onFormUpdate("firstName", e.target.value)
                             }
-                          >
-                            {status.message}
-                          </p>
+                            required
+                          />
                         </Col>
-                      )}
-                    </Row>
-                  </form>
+                        <Col size={12} sm={6} className="px-1">
+                          <input
+                            type="text"
+                            name="lastName"
+                            value={formDetails.lastName}
+                            placeholder="Last Name"
+                            onChange={(e) =>
+                              onFormUpdate("lastName", e.target.value)
+                            }
+                            required
+                          />
+                        </Col>
+                        <Col size={12} sm={6} className="px-1">
+                          <input
+                            type="email"
+                            name="email"
+                            value={formDetails.email}
+                            placeholder="Email Address"
+                            onChange={(e) =>
+                              onFormUpdate("email", e.target.value)
+                            }
+                            required
+                          />
+                          <ValidationError
+                            prefix="Email"
+                            field="email"
+                            errors={state.errors}
+                          />
+                        </Col>
+                        <Col size={12} sm={6} className="px-1">
+                          <input
+                            type="tel"
+                            name="phone"
+                            value={formDetails.phone}
+                            placeholder="Phone No."
+                            onChange={(e) =>
+                              onFormUpdate("phone", e.target.value)
+                            }
+                          />
+                        </Col>
+                        <Col size={12} className="px-1">
+                          <textarea
+                            rows="6"
+                            name="message"
+                            value={formDetails.message}
+                            placeholder="Message"
+                            onChange={(e) =>
+                              onFormUpdate("message", e.target.value)
+                            }
+                            required
+                          />
+                          <ValidationError
+                            prefix="Message"
+                            field="message"
+                            errors={state.errors}
+                          />
+                          <button type="submit" disabled={state.submitting}>
+                            <span>
+                              {state.submitting ? "Sending..." : "Send"}
+                            </span>
+                          </button>
+                        </Col>
+                      </Row>
+                    </form>
+                  )}
                 </div>
               )}
             </TrackVisibility>
