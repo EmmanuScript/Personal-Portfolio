@@ -76,16 +76,18 @@ export const NavBar = () => {
                 <a
                   href="https://www.linkedin.com/in/olajumoke-olatilewa-7ab8a813a/"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   <img src={navIcon1} alt="" />
                 </a>
                 <a
                   href="https://web.facebook.com/olajumokeanjoyin/"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   <img src={navIcon2} alt="" />
                 </a>
-                <a href="https://github.com/EmmanuScript" target="_blank">
+                <a href="https://github.com/EmmanuScript" target="_blank" rel="noreferrer">
                   <img src={navIcon3} alt="" />
                 </a>
               </div>
